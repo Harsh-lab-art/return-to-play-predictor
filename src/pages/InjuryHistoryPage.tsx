@@ -3,12 +3,10 @@ import { useNavigate } from "react-router-dom";
 import { supabase } from "@/integrations/supabase/client";
 import { Button } from "@/components/ui/button";
 import { useToast } from "@/hooks/use-toast";
-import { LogOut, Upload, History } from "lucide-react";
-import { Dashboard } from "@/components/Dashboard";
-import { AthleteProfile } from "@/components/AthleteProfile";
-import { MedicalReportUpload } from "@/components/MedicalReportUpload";
+import { LogOut, ArrowLeft, Activity } from "lucide-react";
+import { InjuryHistory } from "@/components/InjuryHistory";
 
-const DashboardPage = () => {
+const InjuryHistoryPage = () => {
   const navigate = useNavigate();
   const { toast } = useToast();
   const [loading, setLoading] = useState(true);
@@ -62,27 +60,28 @@ const DashboardPage = () => {
     <div className="min-h-screen bg-background">
       <header className="border-b border-border bg-card">
         <div className="container mx-auto px-4 py-4 flex justify-between items-center">
-          <h1 className="text-2xl font-bold text-foreground">Recovery Dashboard</h1>
-          <div className="flex items-center gap-3">
-            <Button variant="outline" onClick={() => navigate("/injury-history")}>
-              <History className="mr-2 h-4 w-4" />
-              Injury History
+          <div className="flex items-center gap-4">
+            <Button variant="ghost" onClick={() => navigate("/dashboard")}>
+              <ArrowLeft className="mr-2 h-4 w-4" />
+              Back to Dashboard
             </Button>
-            <Button variant="outline" onClick={handleSignOut}>
-              <LogOut className="mr-2 h-4 w-4" />
-              Sign Out
-            </Button>
+            <div className="flex items-center gap-2">
+              <Activity className="h-5 w-5 text-primary" />
+              <h1 className="text-2xl font-bold text-foreground">Injury History</h1>
+            </div>
           </div>
+          <Button variant="outline" onClick={handleSignOut}>
+            <LogOut className="mr-2 h-4 w-4" />
+            Sign Out
+          </Button>
         </div>
       </header>
 
-      <main className="container mx-auto px-4 py-8 space-y-8">
-        <AthleteProfile />
-        <MedicalReportUpload userId={user?.id} />
-        <Dashboard />
+      <main className="container mx-auto px-4 py-8">
+        <InjuryHistory />
       </main>
     </div>
   );
 };
 
-export default DashboardPage;
+export default InjuryHistoryPage;
