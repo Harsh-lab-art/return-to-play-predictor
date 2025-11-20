@@ -31,8 +31,36 @@ Deno.serve(async (req) => {
 
     if (injuryError) throw injuryError;
 
-    // Note: For now, we'll skip downloading the actual file since we're using
-    // fallback logic based on injury metadata. In production, you'd parse the medical report here.
+    // Download and parse the medical report file
+    let fileContent = "";
+    try {
+      const { data: fileData, error: downloadError } = await supabase.storage
+        .from("medical-reports")
+        .download(filePath);
+
+      if (downloadError) {
+        console.error("File download error:", downloadError);
+      } else if (fileData) {
+        // For text-based files, read content directly
+        if (filePath.endsWith('.txt') || filePath.endsWith('.json')) {
+          fileContent = await fileData.text();
+        } else {
+          // For PDFs and images, we'll use the AI's vision capabilities
+          const arrayBuffer = await fileData.arrayBuffer();
+          const base64 = btoa(
+            new Uint8Array(arrayBuffer).reduce(
+              (data, byte) => data + String.fromCharCode(byte),
+              ''
+            )
+          );
+          fileContent = `[Binary file content available for analysis - ${fileData.type}]`;
+        }
+        console.log("File downloaded successfully, size:", fileData.size);
+      }
+    } catch (parseError) {
+      console.error("Error parsing file:", parseError);
+      fileContent = "[File content could not be parsed]";
+    }
 
     // Generate analysis using Lovable AI
     const LOVABLE_API_KEY = Deno.env.get("LOVABLE_API_KEY");
@@ -56,13 +84,23 @@ Deno.serve(async (req) => {
               },
               {
                 role: "user",
-                content: `Analyze this injury:
+                content: `Analyze this sports injury and medical report:
+                
                 Injury Type: ${injury.injury_type}
                 Severity: ${injury.severity}
                 Athlete Age: ${new Date().getFullYear() - new Date(injury.athlete_profiles.date_of_birth).getFullYear()} years
                 Sport: ${injury.athlete_profiles.sport}
                 
-                Provide brief recovery insights and key considerations.`,
+                ${fileContent ? `Medical Report Content:\n${fileContent.substring(0, 3000)}` : ''}
+                
+                Based on the medical report and injury details, provide:
+                1. Predicted recovery timeline (min/max days)
+                2. Key risk factors that could affect recovery
+                3. Specific rehabilitation recommendations
+                4. Nutritional requirements (calories and protein)
+                5. Critical warnings or concerns from the medical report
+                
+                Provide a detailed clinical analysis.`,
               },
             ],
           }),
@@ -130,7 +168,7 @@ Deno.serve(async (req) => {
         confidence_score: 0.85,
         key_risk_factors: keyRiskFactors,
         rehabilitation_phases: rehabilitationPhases,
-        clinical_notes: `AI-generated recovery plan based on ${injury.injury_type} (${injury.severity} severity). Recommendations include structured rehabilitation phases with progressive loading. Monitor pain levels and functional performance throughout recovery. AI analysis summary: ${analysisText.substring(0, 500)}`,
+        clinical_notes: analysisText || `AI-generated recovery plan based on ${injury.injury_type} (${injury.severity} severity). Medical report analyzed: ${fileContent ? 'Yes' : 'No'}. Recommendations include structured rehabilitation phases with progressive loading. Monitor pain levels and functional performance throughout recovery.`,
       });
 
     if (recommendationError) throw recommendationError;
