@@ -7,12 +7,14 @@ import { LogOut, Upload, History } from "lucide-react";
 import { Dashboard } from "@/components/Dashboard";
 import { AthleteProfile } from "@/components/AthleteProfile";
 import { MedicalReportUpload } from "@/components/MedicalReportUpload";
+import { ReportViewer } from "@/components/ReportViewer";
 
 const DashboardPage = () => {
   const navigate = useNavigate();
   const { toast } = useToast();
   const [loading, setLoading] = useState(true);
   const [user, setUser] = useState<any>(null);
+  const [athleteId, setAthleteId] = useState<string>("");
 
   useEffect(() => {
     checkUser();
@@ -25,6 +27,17 @@ const DashboardPage = () => {
         navigate("/auth");
       } else {
         setUser(user);
+        
+        // Fetch athlete profile ID
+        const { data: profile } = await supabase
+          .from("athlete_profiles")
+          .select("id")
+          .eq("user_id", user.id)
+          .single();
+        
+        if (profile) {
+          setAthleteId(profile.id);
+        }
       }
     } catch (error) {
       navigate("/auth");
@@ -79,6 +92,7 @@ const DashboardPage = () => {
       <main className="container mx-auto px-4 py-8 space-y-8">
         <AthleteProfile />
         <MedicalReportUpload userId={user?.id} />
+        {athleteId && <ReportViewer athleteId={athleteId} />}
         <Dashboard />
       </main>
     </div>

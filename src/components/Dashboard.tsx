@@ -236,9 +236,13 @@ export const Dashboard = () => {
                 <CardTitle>Clinical Notes & Recommendations</CardTitle>
               </CardHeader>
               <CardContent>
-                <p className="text-sm text-muted-foreground leading-relaxed">
-                  {recoveryData.clinical_notes}
-                </p>
+                <div className="text-sm text-muted-foreground leading-relaxed space-y-2 text-left">
+                  {recoveryData.clinical_notes.split(/[.\n]/).filter(line => line.trim()).map((note, index) => (
+                    <p key={index} className="pl-0 text-left">
+                      • {note.trim()}
+                    </p>
+                  ))}
+                </div>
               </CardContent>
             </Card>
           )}
