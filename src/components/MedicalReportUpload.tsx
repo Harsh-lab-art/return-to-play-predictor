@@ -118,10 +118,11 @@ export const MedicalReportUpload = ({ userId }: MedicalReportUploadProps) => {
       if (fileInput) fileInput.value = "";
 
     } catch (error: any) {
+      console.error("Upload error details:", error);
       toast({
         variant: "destructive",
         title: "Upload failed",
-        description: error.message,
+        description: error.message || "Failed to upload file. Please try again.",
       });
     } finally {
       setUploading(false);
@@ -132,11 +133,18 @@ export const MedicalReportUpload = ({ userId }: MedicalReportUploadProps) => {
     setAnalyzing(true);
 
     try {
+      console.log("Starting analysis for injury:", injuryId, "file:", filePath);
+      
       const { data, error } = await supabase.functions.invoke("analyze-medical-report", {
         body: { injuryId, filePath },
       });
 
-      if (error) throw error;
+      console.log("Analysis response:", data, error);
+
+      if (error) {
+        console.error("Analysis error:", error);
+        throw error;
+      }
 
       toast({
         title: "Analysis complete",
@@ -144,12 +152,13 @@ export const MedicalReportUpload = ({ userId }: MedicalReportUploadProps) => {
       });
 
       // Reload page to show new data
-      window.location.reload();
+      setTimeout(() => window.location.reload(), 1000);
     } catch (error: any) {
+      console.error("Analysis failed:", error);
       toast({
         variant: "destructive",
         title: "Analysis failed",
-        description: error.message,
+        description: error.message || "Failed to analyze report. Please try again.",
       });
     } finally {
       setAnalyzing(false);
