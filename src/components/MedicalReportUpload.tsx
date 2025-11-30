@@ -20,6 +20,8 @@ export const MedicalReportUpload = ({ userId }: MedicalReportUploadProps) => {
   const [reportType, setReportType] = useState("");
   const [injuryType, setInjuryType] = useState("");
   const [severity, setSeverity] = useState("");
+  const [injurySide, setInjurySide] = useState("");
+  const [bodyLocation, setBodyLocation] = useState("");
 
   const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     if (e.target.files && e.target.files[0]) {
@@ -40,7 +42,7 @@ export const MedicalReportUpload = ({ userId }: MedicalReportUploadProps) => {
   };
 
   const handleUpload = async () => {
-    if (!file || !reportType || !injuryType || !severity) {
+    if (!file || !reportType || !injuryType || !severity || !injurySide || !bodyLocation) {
       toast({
         variant: "destructive",
         title: "Missing information",
@@ -62,12 +64,16 @@ export const MedicalReportUpload = ({ userId }: MedicalReportUploadProps) => {
       if (profileError) throw profileError;
 
       // Create injury record
+      const injuryLocation = injurySide === "not-applicable" 
+        ? bodyLocation 
+        : `${injurySide} ${bodyLocation}`;
+      
       const { data: injury, error: injuryError } = await supabase
         .from("injuries")
         .insert({
           athlete_id: profile.id,
           injury_type: injuryType,
-          injury_location: "To be analyzed",
+          injury_location: injuryLocation,
           severity,
           injury_date: new Date().toISOString().split("T")[0],
           status: "active",
@@ -114,6 +120,8 @@ export const MedicalReportUpload = ({ userId }: MedicalReportUploadProps) => {
       setReportType("");
       setInjuryType("");
       setSeverity("");
+      setInjurySide("");
+      setBodyLocation("");
       const fileInput = document.getElementById("file-upload") as HTMLInputElement;
       if (fileInput) fileInput.value = "";
 
@@ -232,16 +240,65 @@ export const MedicalReportUpload = ({ userId }: MedicalReportUploadProps) => {
           </Select>
         </div>
 
+        <div className="grid grid-cols-2 gap-4">
+          <div className="space-y-2">
+            <Label htmlFor="body-location">Body Location</Label>
+            <Select value={bodyLocation} onValueChange={setBodyLocation}>
+              <SelectTrigger>
+                <SelectValue placeholder="Select location" />
+              </SelectTrigger>
+              <SelectContent className="bg-popover z-50">
+                <SelectItem value="knee">Knee</SelectItem>
+                <SelectItem value="ankle">Ankle</SelectItem>
+                <SelectItem value="foot">Foot</SelectItem>
+                <SelectItem value="hip">Hip</SelectItem>
+                <SelectItem value="thigh">Thigh</SelectItem>
+                <SelectItem value="calf">Calf</SelectItem>
+                <SelectItem value="hamstring">Hamstring</SelectItem>
+                <SelectItem value="quadriceps">Quadriceps</SelectItem>
+                <SelectItem value="groin">Groin</SelectItem>
+                <SelectItem value="shoulder">Shoulder</SelectItem>
+                <SelectItem value="elbow">Elbow</SelectItem>
+                <SelectItem value="wrist">Wrist</SelectItem>
+                <SelectItem value="hand">Hand</SelectItem>
+                <SelectItem value="back">Back</SelectItem>
+                <SelectItem value="neck">Neck</SelectItem>
+                <SelectItem value="head">Head</SelectItem>
+              </SelectContent>
+            </Select>
+          </div>
+
+          <div className="space-y-2">
+            <Label htmlFor="injury-side">Side</Label>
+            <Select value={injurySide} onValueChange={setInjurySide}>
+              <SelectTrigger>
+                <SelectValue placeholder="Select side" />
+              </SelectTrigger>
+              <SelectContent className="bg-popover z-50">
+                <SelectItem value="left">Left</SelectItem>
+                <SelectItem value="right">Right</SelectItem>
+                <SelectItem value="bilateral">Bilateral (Both)</SelectItem>
+                <SelectItem value="central">Central</SelectItem>
+                <SelectItem value="not-applicable">Not Applicable</SelectItem>
+              </SelectContent>
+            </Select>
+          </div>
+        </div>
+
         <div className="space-y-2">
-          <Label htmlFor="severity">Severity</Label>
+          <Label htmlFor="severity">Severity Grade</Label>
           <Select value={severity} onValueChange={setSeverity}>
             <SelectTrigger>
               <SelectValue placeholder="Select severity" />
             </SelectTrigger>
-            <SelectContent>
+            <SelectContent className="bg-popover z-50">
+              <SelectItem value="grade-1-mild">Grade 1 - Mild (Minor damage, minimal loss of function)</SelectItem>
+              <SelectItem value="grade-2-moderate">Grade 2 - Moderate (Partial tear, noticeable loss of function)</SelectItem>
+              <SelectItem value="grade-3-severe">Grade 3 - Severe (Complete tear, significant loss of function)</SelectItem>
               <SelectItem value="mild">Mild</SelectItem>
               <SelectItem value="moderate">Moderate</SelectItem>
               <SelectItem value="severe">Severe</SelectItem>
+              <SelectItem value="critical">Critical</SelectItem>
             </SelectContent>
           </Select>
         </div>
