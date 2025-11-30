@@ -171,6 +171,7 @@ const Auth = () => {
                     id="date-of-birth"
                     name="date-of-birth"
                     type="date"
+                    max={new Date(new Date().setFullYear(new Date().getFullYear() - 80)).toISOString().split('T')[0]}
                     required
                   />
                 </div>
