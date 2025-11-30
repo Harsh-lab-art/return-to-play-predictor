@@ -3,7 +3,7 @@ import { supabase } from "@/integrations/supabase/client";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import { ScrollArea } from "@/components/ui/scroll-area";
+
 import { MessageSquare, Send, Loader2, Bot, User } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
 
@@ -28,7 +28,7 @@ export const HealthcareChat = () => {
     if (scrollRef.current) {
       scrollRef.current.scrollTop = scrollRef.current.scrollHeight;
     }
-  }, [messages]);
+  }, [messages, isLoading]);
 
   const sendMessage = async () => {
     if (!input.trim() || isLoading) return;
@@ -85,7 +85,10 @@ export const HealthcareChat = () => {
         </CardTitle>
       </CardHeader>
       <CardContent className="flex-1 flex flex-col p-0">
-        <ScrollArea className="flex-1 p-4" ref={scrollRef}>
+        <div 
+          ref={scrollRef}
+          className="flex-1 p-4 overflow-y-auto"
+        >
           <div className="space-y-4">
             {messages.map((message, index) => (
               <div
@@ -126,7 +129,7 @@ export const HealthcareChat = () => {
               </div>
             )}
           </div>
-        </ScrollArea>
+        </div>
         <div className="p-4 border-t">
           <div className="flex gap-2">
             <Input
