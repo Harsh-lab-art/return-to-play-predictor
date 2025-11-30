@@ -200,15 +200,34 @@ export const MedicalReportUpload = ({ userId }: MedicalReportUploadProps) => {
             <SelectTrigger>
               <SelectValue placeholder="Select injury type" />
             </SelectTrigger>
-            <SelectContent>
-              <SelectItem value="acl">ACL Tear</SelectItem>
-              <SelectItem value="meniscus">Meniscus Tear</SelectItem>
-              <SelectItem value="hamstring">Hamstring Strain</SelectItem>
+            <SelectContent className="bg-popover max-h-[300px] overflow-y-auto z-50">
+              <SelectItem value="acl-tear">ACL Tear</SelectItem>
+              <SelectItem value="mcl-tear">MCL Tear</SelectItem>
+              <SelectItem value="lcl-tear">LCL Tear</SelectItem>
+              <SelectItem value="pcl-tear">PCL Tear</SelectItem>
+              <SelectItem value="meniscus-tear">Meniscus Tear</SelectItem>
+              <SelectItem value="hamstring-strain">Hamstring Strain</SelectItem>
+              <SelectItem value="quadriceps-strain">Quadriceps Strain</SelectItem>
+              <SelectItem value="groin-strain">Groin Strain</SelectItem>
+              <SelectItem value="calf-strain">Calf Strain</SelectItem>
+              <SelectItem value="hip-flexor-strain">Hip Flexor Strain</SelectItem>
               <SelectItem value="ankle-sprain">Ankle Sprain</SelectItem>
-              <SelectItem value="shoulder">Shoulder Injury</SelectItem>
+              <SelectItem value="achilles-tendinitis">Achilles Tendinitis</SelectItem>
+              <SelectItem value="achilles-rupture">Achilles Rupture</SelectItem>
+              <SelectItem value="patella-tendinitis">Patella Tendinitis</SelectItem>
+              <SelectItem value="shin-splints">Shin Splints</SelectItem>
+              <SelectItem value="stress-fracture">Stress Fracture</SelectItem>
+              <SelectItem value="bone-fracture">Bone Fracture</SelectItem>
+              <SelectItem value="rotator-cuff">Rotator Cuff Injury</SelectItem>
+              <SelectItem value="shoulder-dislocation">Shoulder Dislocation</SelectItem>
+              <SelectItem value="labrum-tear">Labrum Tear</SelectItem>
+              <SelectItem value="tennis-elbow">Tennis Elbow</SelectItem>
+              <SelectItem value="golfers-elbow">Golfer's Elbow</SelectItem>
+              <SelectItem value="wrist-sprain">Wrist Sprain</SelectItem>
+              <SelectItem value="back-strain">Back Strain</SelectItem>
+              <SelectItem value="herniated-disc">Herniated Disc</SelectItem>
               <SelectItem value="concussion">Concussion</SelectItem>
-              <SelectItem value="fracture">Fracture</SelectItem>
-              <SelectItem value="other">Other</SelectItem>
+              <SelectItem value="plantar-fasciitis">Plantar Fasciitis</SelectItem>
             </SelectContent>
           </Select>
         </div>
