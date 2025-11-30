@@ -8,6 +8,7 @@ import { Dashboard } from "@/components/Dashboard";
 import { AthleteProfile } from "@/components/AthleteProfile";
 import { MedicalReportUpload } from "@/components/MedicalReportUpload";
 import { ReportViewer } from "@/components/ReportViewer";
+import { HealthcareChat } from "@/components/HealthcareChat";
 
 const DashboardPage = () => {
   const navigate = useNavigate();
@@ -94,6 +95,7 @@ const DashboardPage = () => {
         <MedicalReportUpload userId={user?.id} />
         {athleteId && <ReportViewer athleteId={athleteId} />}
         <Dashboard />
+        <HealthcareChat />
       </main>
     </div>
   );
