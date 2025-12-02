@@ -15,23 +15,14 @@ interface MedicalReportUploadProps {
 export const MedicalReportUpload = ({ userId }: MedicalReportUploadProps) => {
   const { toast } = useToast();
   const [uploading, setUploading] = useState(false);
-  const [analyzing, setAnalyzing] = useState(false);
-  const [file, setFile] = useState<File | null>(null);
   const [reportType, setReportType] = useState("");
   const [injuryType, setInjuryType] = useState("");
   const [severity, setSeverity] = useState("");
   const [injurySide, setInjurySide] = useState("");
   const [bodyLocation, setBodyLocation] = useState("");
 
-  const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    if (e.target.files && e.target.files[0]) {
-      const selectedFile = e.target.files[0];
-      setFile(selectedFile);
-    }
-  };
-
   const handleUpload = async () => {
-    if (!file || !reportType || !injuryType || !severity || !injurySide || !bodyLocation) {
+    if (!reportType || !injuryType || !severity || !injurySide || !bodyLocation) {
       toast({
         variant: "destructive",
         title: "Missing information",
@@ -72,47 +63,17 @@ export const MedicalReportUpload = ({ userId }: MedicalReportUploadProps) => {
 
       if (injuryError) throw injuryError;
 
-      // Upload file to storage
-      const fileName = `${userId}/${Date.now()}-${file.name}`;
-      const { error: uploadError } = await supabase.storage
-        .from("medical-reports")
-        .upload(fileName, file);
-
-      if (uploadError) throw uploadError;
-
-      // Create medical report record
-      const { error: reportError } = await supabase
-        .from("medical_reports")
-        .insert({
-          athlete_id: profile.id,
-          injury_id: injury.id,
-          file_name: file.name,
-          file_path: fileName,
-          file_size: file.size,
-          report_type: reportType,
-          uploaded_by: userId,
-          analysis_status: "pending",
-        });
-
-      if (reportError) throw reportError;
-
       toast({
-        title: "Upload successful",
-        description: "Medical report uploaded. Starting AI analysis...",
+        title: "Success",
+        description: "Injury record created successfully.",
       });
 
-      // Trigger AI analysis
-      await analyzeReport(injury.id, fileName);
-
       // Reset form
-      setFile(null);
       setReportType("");
       setInjuryType("");
       setSeverity("");
       setInjurySide("");
       setBodyLocation("");
-      const fileInput = document.getElementById("file-upload") as HTMLInputElement;
-      if (fileInput) fileInput.value = "";
 
     } catch (error: any) {
       console.error("Upload error details:", error);
@@ -126,41 +87,6 @@ export const MedicalReportUpload = ({ userId }: MedicalReportUploadProps) => {
     }
   };
 
-  const analyzeReport = async (injuryId: string, filePath: string) => {
-    setAnalyzing(true);
-
-    try {
-      console.log("Starting analysis for injury:", injuryId, "file:", filePath);
-      
-      const { data, error } = await supabase.functions.invoke("analyze-medical-report", {
-        body: { injuryId, filePath },
-      });
-
-      console.log("Analysis response:", data, error);
-
-      if (error) {
-        console.error("Analysis error:", error);
-        throw error;
-      }
-
-      toast({
-        title: "Analysis complete",
-        description: "Recovery recommendations have been generated!",
-      });
-
-      // Reload page to show new data
-      setTimeout(() => window.location.reload(), 1000);
-    } catch (error: any) {
-      console.error("Analysis failed:", error);
-      toast({
-        variant: "destructive",
-        title: "Analysis failed",
-        description: error.message || "Failed to analyze report. Please try again.",
-      });
-    } finally {
-      setAnalyzing(false);
-    }
-  };
 
   return (
     <Card>
@@ -292,36 +218,20 @@ export const MedicalReportUpload = ({ userId }: MedicalReportUploadProps) => {
           </Select>
         </div>
 
-        <div className="space-y-2">
-          <Label htmlFor="file-upload">Medical Report File</Label>
-          <Input
-            id="file-upload"
-            type="file"
-            accept=".pdf,application/pdf"
-            onChange={handleFileChange}
-            disabled={uploading || analyzing}
-          />
-          {file && (
-            <p className="text-sm text-muted-foreground">
-              Selected: {file.name} ({(file.size / 1024 / 1024).toFixed(2)} MB)
-            </p>
-          )}
-        </div>
-
         <Button
           onClick={handleUpload}
-          disabled={uploading || analyzing || !file}
+          disabled={uploading}
           className="w-full"
         >
-          {uploading || analyzing ? (
+          {uploading ? (
             <>
               <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-              {uploading ? "Uploading..." : "Analyzing..."}
+              Creating...
             </>
           ) : (
             <>
               <Upload className="mr-2 h-4 w-4" />
-              Upload & Analyze
+              Create Injury Record
             </>
           )}
         </Button>
