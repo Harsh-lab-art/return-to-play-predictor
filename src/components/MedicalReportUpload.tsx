@@ -26,17 +26,6 @@ export const MedicalReportUpload = ({ userId }: MedicalReportUploadProps) => {
   const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     if (e.target.files && e.target.files[0]) {
       const selectedFile = e.target.files[0];
-      
-      // Validate file size (10MB limit)
-      if (selectedFile.size > 10 * 1024 * 1024) {
-        toast({
-          variant: "destructive",
-          title: "File too large",
-          description: "Maximum file size is 10MB",
-        });
-        return;
-      }
-
       setFile(selectedFile);
     }
   };
@@ -308,7 +297,7 @@ export const MedicalReportUpload = ({ userId }: MedicalReportUploadProps) => {
           <Input
             id="file-upload"
             type="file"
-            accept=".pdf,.jpg,.jpeg,.png,.dcm"
+            accept=".pdf,application/pdf"
             onChange={handleFileChange}
             disabled={uploading || analyzing}
           />
