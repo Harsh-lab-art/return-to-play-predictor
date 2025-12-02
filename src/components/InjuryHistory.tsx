@@ -4,6 +4,8 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/com
 import { Badge } from "@/components/ui/badge";
 import { Progress } from "@/components/ui/progress";
 import { Separator } from "@/components/ui/separator";
+import { Button } from "@/components/ui/button";
+import { MedicalFileUpload } from "./MedicalFileUpload";
 import { 
   Calendar, 
   TrendingUp, 
@@ -12,7 +14,8 @@ import {
   Clock,
   Activity,
   Loader2,
-  XCircle
+  XCircle,
+  Upload
 } from "lucide-react";
 
 interface Injury {
@@ -44,6 +47,8 @@ interface InjuryWithRecovery extends Injury {
 export const InjuryHistory = () => {
   const [injuries, setInjuries] = useState<InjuryWithRecovery[]>([]);
   const [loading, setLoading] = useState(true);
+  const [expandedInjury, setExpandedInjury] = useState<string | null>(null);
+  const [athleteId, setAthleteId] = useState<string>("");
   const [stats, setStats] = useState({
     totalInjuries: 0,
     averageRecoveryTime: 0,
@@ -67,6 +72,8 @@ export const InjuryHistory = () => {
         .single();
 
       if (!profile) return;
+
+      setAthleteId(profile.id);
 
       // Fetch all injuries
       const { data: injuriesData } = await supabase
@@ -353,6 +360,32 @@ export const InjuryHistory = () => {
                       </p>
                     </details>
                   )}
+
+                  {/* File Upload Section */}
+                  <div className="mt-4">
+                    <Button
+                      variant="outline"
+                      size="sm"
+                      onClick={() => setExpandedInjury(expandedInjury === injury.id ? null : injury.id)}
+                      className="w-full"
+                    >
+                      <Upload className="mr-2 h-4 w-4" />
+                      {expandedInjury === injury.id ? "Hide" : "Add Medical Files"}
+                    </Button>
+                    
+                    {expandedInjury === injury.id && (
+                      <div className="mt-3">
+                        <MedicalFileUpload
+                          injuryId={injury.id}
+                          athleteId={athleteId}
+                          onUploadComplete={() => {
+                            setExpandedInjury(null);
+                            fetchInjuryHistory();
+                          }}
+                        />
+                      </div>
+                    )}
+                  </div>
                 </div>
               </div>
 
